@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Essence Arena — Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:#0a0a0f; font-family:'Inter',sans-serif; color:#e8e8ec; touch-action:none; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
+canvas { display:block; }
+#ui-layer { position:fixed; inset:0; pointer-events:none; z-index:10; }
+#ui-layer button, #ui-layer [data-interactive] { pointer-events:auto; }
+
+/* Title Screen */
+#title-screen {
+  position:fixed; inset:0; z-index:100; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
+  pointer-events:auto; padding:20px;
+}
+#title-screen h1 {
+  font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,10vw,4rem);
+  font-weight:700; letter-spacing:0.05em; color:#e8e8ec;
+  text-shadow:0 0 40px rgba(78,200,176,0.3), 0 0 80px rgba(78,200,176,0.1);
+  margin-bottom:0.5em; text-align:center;
+}
+#title-screen .subtitle {
+  font-size:13px; color:#8888a0; margin-bottom:2em; text-align:center; line-height:1.6;
+}
+#title-screen button {
+  background:rgba(78,200,176,0.15); border:1px solid rgba(78,200,176,0.3);
+  color:#4ec8b0; padding:16px 48px; font-size:18px; font-family:'Inter',sans-serif;
+  font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.2s;
+}
+#title-screen button:active { background:rgba(78,200,176,0.35); }
+.controls-info {
+  margin-top:1.5em; font-size:12px; color:#555; text-align:center; line-height:2;
+}
+
+/* HUD */
+#hud {
+  position:fixed; top:max(8px, env(safe-area-inset-top)); left:8px; z-index:20; pointer-events:none;
+}
+.hud-bar {
+  display:flex; align-items:center; gap:6px; margin-bottom:4px;
+}
+.hud-bar-label { font-size:10px; font-weight:600; color:#8888a0; width:36px; text-align:right; }
+.hud-bar-track { width:100px; height:7px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; }
+.hud-bar-fill { height:100%; border-radius:4px; transition:width 0.3s; }
+.hp-fill { background:linear-gradient(90deg,#ff4466,#ff6688); }
+.essence-fill { background:linear-gradient(90deg,#4ec8b0,#6ee8d0); }
+.hud-text { font-size:10px; font-weight:600; color:#e8e8ec; font-variant-numeric:tabular-nums lining-nums; min-width:32px; }
+
+#hud-stats {
+  position:fixed; top:max(8px, env(safe-area-inset-top)); right:8px; z-index:20; pointer-events:none;
+  font-size:10px; color:#8888a0; text-align:right; line-height:1.8;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+
+/* Death Screen */
+#death-screen {
+  position:fixed; inset:0; z-index:100; display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:rgba(10,10,15,0.92); pointer-events:auto; padding:20px;
+}
+#death-screen h2 {
+  font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,8vw,3.5rem);
+  font-weight:700; color:#ff4466;
+  text-shadow:0 0 30px rgba(255,68,102,0.4);
+  margin-bottom:0.3em;
+}
+#death-screen .death-info { font-size:13px; color:#8888a0; margin-bottom:2em; text-align:center; line-height:1.8; }
+#death-screen button {
+  background:rgba(255,68,102,0.15); border:1px solid rgba(255,68,102,0.3);
+  color:#ff6688; padding:14px 40px; font-size:16px; font-family:'Inter',sans-serif;
+  font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.2s;
+}
+#death-screen button:active { background:rgba(255,68,102,0.35); }
+
+/* Skill Menu */
+#skill-menu {
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:50; display:none; pointer-events:auto;
+  background:rgba(15,15,20,0.95); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:20px; width:calc(100vw - 32px); max-width:360px;
+  backdrop-filter:blur(12px); max-height:80vh; overflow-y:auto;
+}
+#skill-menu h3 {
+  font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700;
+  color:#4ec8b0; margin-bottom:12px; text-align:center;
+}
+.skill-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.skill-row:last-child { border-bottom:none; }
+.skill-name { font-size:13px; color:#e8e8ec; }
+.skill-value { font-size:13px; color:#4ec8b0; font-weight:600; font-variant-numeric:tabular-nums; }
+.skill-btn {
+  background:rgba(78,200,176,0.15); border:1px solid rgba(78,200,176,0.3);
+  color:#4ec8b0; padding:6px 14px; font-size:13px; border-radius:4px;
+  cursor:pointer; font-family:'Inter',sans-serif; font-weight:600; transition:all 0.15s;
+}
+.skill-btn:active { background:rgba(78,200,176,0.4); }
+.skill-btn:disabled { opacity:0.3; cursor:default; }
+.skill-cost { font-size:11px; color:#8888a0; margin-left:8px; }
+.skill-close {
+  display:block; margin:16px auto 0; background:none; border:1px solid rgba(255,255,255,0.15);
+  color:#8888a0; padding:10px 28px; font-size:14px; border-radius:6px;
+  cursor:pointer; font-family:'Inter',sans-serif;
+}
+.skill-close:active { color:#e8e8ec; border-color:rgba(255,255,255,0.3); }
+
+/* Minimap */
+#minimap {
+  position:fixed; bottom:max(220px, calc(env(safe-area-inset-bottom) + 220px)); right:8px; z-index:20; pointer-events:none;
+  border:1px solid rgba(255,255,255,0.1); border-radius:4px; opacity:0.85;
+}
+
+/* Debug */
+#debug {
+  position:fixed; top:0; left:0; z-index:99999;
+  background:rgba(0,0,0,0.75); color:#0f0;
+  font:11px/1.5 monospace; padding:6px 10px;
+  pointer-events:none; white-space:pre;
+  display:none;
+}
+
+/* =================== MOBILE TOUCH CONTROLS =================== */
+
+/* Virtual Joystick Area */
+#joystick-zone {
+  position:fixed;
+  bottom:max(32px, calc(env(safe-area-inset-bottom) + 16px));
+  left:16px;
+  width:160px; height:160px;
+  z-index:30;
+  pointer-events:auto;
+}
+#joystick-base {
+  position:absolute;
+  width:120px; height:120px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.04);
+  border:2px solid rgba(255,255,255,0.1);
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+}
+#joystick-thumb {
+  position:absolute;
+  width:48px; height:48px;
+  border-radius:50%;
+  background:rgba(78,200,176,0.2);
+  border:2px solid rgba(78,200,176,0.4);
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  transition:none;
+}
+
+/* Action Buttons */
+#touch-actions {
+  position:fixed;
+  bottom:max(40px, calc(env(safe-area-inset-bottom) + 16px));
+  right:16px;
+  z-index:30;
+  pointer-events:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+
+.touch-btn {
+  width:62px; height:62px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; font-family:'Inter',sans-serif;
+  border:2px solid;
+  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;
+  flex-shrink:0;
+  line-height:1.1;
+  text-align:center;
+}
+
+.touch-btn-row {
+  display:flex; gap:10px; align-items:center;
+}
+
+#btn-left-attack {
+  background:rgba(78,200,176,0.1); border-color:rgba(78,200,176,0.35); color:#4ec8b0;
+}
+#btn-left-attack.active { background:rgba(78,200,176,0.35); }
+
+#btn-right-attack {
+  background:rgba(200,160,78,0.1); border-color:rgba(200,160,78,0.35); color:#c8a04e;
+}
+#btn-right-attack.active { background:rgba(200,160,78,0.35); }
+
+#btn-dash {
+  background:rgba(120,140,255,0.1); border-color:rgba(120,140,255,0.35); color:#8090ff;
+  width:52px; height:52px; font-size:11px;
+}
+#btn-dash.active { background:rgba(120,140,255,0.35); }
+#btn-dash.cooldown { opacity:0.35; }
+
+/* Skill button top-right */
+#btn-skill-menu {
+  position:fixed;
+  top:max(60px, calc(env(safe-area-inset-top) + 52px));
+  left:8px;
+  z-index:30;
+  pointer-events:auto;
+  background:rgba(78,200,176,0.1); border:1px solid rgba(78,200,176,0.3);
+  color:#4ec8b0; padding:6px 12px; font-size:11px; font-weight:600;
+  border-radius:6px; font-family:'Inter',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+#btn-skill-menu:active { background:rgba(78,200,176,0.3); }
+
+/* Aim indicator */
+#aim-line {
+  position:fixed; inset:0; z-index:15; pointer-events:none;
+}
+
+footer {
+  position:fixed; bottom:4px; left:50%; transform:translateX(-50%);
+  z-index:5; font-size:9px;
+}
+footer a { color:#444; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div id="title-screen">
+  <h1>Essence Arena</h1>
+  <div class="subtitle">
+    虚無から生まれ、エッセンスを奪い合え<br>
+    死してなお、魂は巡る
+  </div>
+  <button id="start-btn" onclick="startGame()">始める</button>
+  <div class="controls-info">
+    左スティック：移動<br>
+    左斬り / 右斬り ボタン：攻撃<br>
+    ダッシュ ボタン：回避<br>
+    近くの敵に自動で照準
+  </div>
+</div>
+
+<div id="death-screen">
+  <h2>散華</h2>
+  <div class="death-info" id="death-info">
+    エッセンスの70%は遺体に残っている<br>
+    取り戻しに向かえ
+  </div>
+  <button onclick="respawn()">転生する</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="ui-layer">
+  <div id="hud">
+    <div class="hud-bar">
+      <span class="hud-bar-label">HP</span>
+      <div class="hud-bar-track"><div class="hud-bar-fill hp-fill" id="hp-bar"></div></div>
+      <span class="hud-text" id="hp-text">3/3</span>
+    </div>
+    <div class="hud-bar">
+      <span class="hud-bar-label">Essence</span>
+      <div class="hud-bar-track"><div class="hud-bar-fill essence-fill" id="essence-bar"></div></div>
+      <span class="hud-text" id="essence-text">0</span>
+    </div>
+  </div>
+  <div id="hud-stats"></div>
+</div>
+
+<div id="skill-menu">
+  <h3>スキル強化</h3>
+  <div id="skill-list"></div>
+  <button class="skill-close" onclick="toggleSkillMenu()">閉じる</button>
+</div>
+
+<canvas id="minimap" width="90" height="90"></canvas>
+<div id="debug"></div>
+
+<!-- Touch Controls -->
+<div id="joystick-zone">
+  <div id="joystick-base">
+    <div id="joystick-thumb"></div>
+  </div>
+</div>
+
+<div id="touch-actions">
+  <div class="touch-btn" id="btn-dash">ダッシュ</div>
+  <div class="touch-btn-row">
+    <div class="touch-btn" id="btn-left-attack">左斬</div>
+    <div class="touch-btn" id="btn-right-attack">右斬</div>
+  </div>
+</div>
+
+<button id="btn-skill-menu" onclick="toggleSkillMenu()">スキル</button>
+
+<canvas id="aim-line" style="display:none;"></canvas>
+
+<footer>
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">
+    Created with Perplexity Computer
+  </a>
+</footer>
+
+<script>
+// ============================================================
+// ESSENCE ARENA — Mobile Version
+// ============================================================
+
+// --- Constants ---
+const WORLD_SIZE = 4000;
+const TILE_SIZE = 64;
+const BASE_SPEED = 180;
+const SWORD_LENGTH = 55;
+const SWORD_ARC = Math.PI * 0.7;
+const SWORD_SWING_TIME = 0.25;
+const SWORD_COOLDOWN = 0.4;
+const DASH_DISTANCE = 120;
+const DASH_COOLDOWN = 3;
+const BASE_HP = 3;
+const DAMAGE = 1;
+const ESSENCE_ABSORB_RANGE = 60;
+const ESSENCE_ATTRACT_RANGE = 160;
+const ENEMY_SENSE_RANGE = 250;
+const ENEMY_ATTACK_RANGE = 55;
+const PARRY_WINDOW = 0.12;
+const IFRAMES = 0.4;
+const DEATH_ESSENCE_KEEP = 0.7;
+const MINIMAP_RANGE = 600;
+const AUTO_AIM_RANGE = 200;
+
+// --- Canvas ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const miniCanvas = document.getElementById('minimap');
+const miniCtx = miniCanvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// --- Audio ---
+let audioCtx;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playSFX(freq, dur, type='square', vol=0.15) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+function playSlash() { playSFX(200, 0.15, 'sawtooth', 0.12); }
+function playParry() { playSFX(800, 0.3, 'triangle', 0.2); playSFX(1200, 0.15, 'sine', 0.15); }
+function playHit() { playSFX(100, 0.2, 'sawtooth', 0.2); }
+function playDeath() { playSFX(80, 0.5, 'sawtooth', 0.25); playSFX(60, 0.8, 'sine', 0.15); }
+function playEssence() { playSFX(600 + Math.random()*200, 0.1, 'sine', 0.08); }
+function playLevelUp() { playSFX(523, 0.15, 'sine', 0.15); setTimeout(()=>playSFX(659, 0.15, 'sine', 0.15), 100); setTimeout(()=>playSFX(784, 0.3, 'sine', 0.2), 200); }
+
+// --- Input (Touch) ---
+let touchMoveX = 0, touchMoveY = 0; // -1 to 1 joystick values
+let touchLeftAttack = false, touchRightAttack = false;
+let touchDash = false;
+let autoAimAngle = 0;
+let hasAutoAimTarget = false;
+
+// Virtual Joystick
+const joystickZone = document.getElementById('joystick-zone');
+const joystickBase = document.getElementById('joystick-base');
+const joystickThumb = document.getElementById('joystick-thumb');
+let joystickTouchId = null;
+let joystickCenterX = 0, joystickCenterY = 0;
+const JOYSTICK_MAX_DIST = 50;
+
+function getJoystickCenter() {
+  const rect = joystickBase.getBoundingClientRect();
+  return { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+}
+
+joystickZone.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (joystickTouchId !== null) return;
+  const t = e.changedTouches[0];
+  joystickTouchId = t.identifier;
+  const center = getJoystickCenter();
+  joystickCenterX = center.x;
+  joystickCenterY = center.y;
+  updateJoystick(t.clientX, t.clientY);
+}, {passive:false});
+
+joystickZone.addEventListener('touchmove', e => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) {
+      updateJoystick(t.clientX, t.clientY);
+    }
+  }
+}, {passive:false});
+
+joystickZone.addEventListener('touchend', e => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) {
+      joystickTouchId = null;
+      touchMoveX = 0; touchMoveY = 0;
+      joystickThumb.style.transform = 'translate(-50%,-50%)';
+    }
+  }
+});
+joystickZone.addEventListener('touchcancel', e => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) {
+      joystickTouchId = null;
+      touchMoveX = 0; touchMoveY = 0;
+      joystickThumb.style.transform = 'translate(-50%,-50%)';
+    }
+  }
+});
+
+function updateJoystick(tx, ty) {
+  let dx = tx - joystickCenterX;
+  let dy = ty - joystickCenterY;
+  const d = Math.sqrt(dx*dx + dy*dy);
+  if (d > JOYSTICK_MAX_DIST) {
+    dx = dx/d * JOYSTICK_MAX_DIST;
+    dy = dy/d * JOYSTICK_MAX_DIST;
+  }
+  touchMoveX = dx / JOYSTICK_MAX_DIST;
+  touchMoveY = dy / JOYSTICK_MAX_DIST;
+  // Move thumb visual
+  joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+}
+
+// Attack buttons
+const btnLeft = document.getElementById('btn-left-attack');
+const btnRight = document.getElementById('btn-right-attack');
+const btnDash = document.getElementById('btn-dash');
+
+btnLeft.addEventListener('touchstart', e => { e.preventDefault(); touchLeftAttack = true; btnLeft.classList.add('active'); }, {passive:false});
+btnLeft.addEventListener('touchend', e => { btnLeft.classList.remove('active'); });
+btnLeft.addEventListener('touchcancel', e => { btnLeft.classList.remove('active'); });
+
+btnRight.addEventListener('touchstart', e => { e.preventDefault(); touchRightAttack = true; btnRight.classList.add('active'); }, {passive:false});
+btnRight.addEventListener('touchend', e => { btnRight.classList.remove('active'); });
+btnRight.addEventListener('touchcancel', e => { btnRight.classList.remove('active'); });
+
+btnDash.addEventListener('touchstart', e => { e.preventDefault(); touchDash = true; btnDash.classList.add('active'); }, {passive:false});
+btnDash.addEventListener('touchend', e => { btnDash.classList.remove('active'); });
+btnDash.addEventListener('touchcancel', e => { btnDash.classList.remove('active'); });
+
+// Prevent canvas touch from doing default actions
+canvas.addEventListener('touchstart', e => e.preventDefault(), {passive:false});
+canvas.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
+
+// Hide touch controls on title/death
+function showTouchControls(show) {
+  const d = show ? 'flex' : 'none';
+  document.getElementById('joystick-zone').style.display = show ? 'block' : 'none';
+  document.getElementById('touch-actions').style.display = d;
+  document.getElementById('btn-skill-menu').style.display = show ? 'block' : 'none';
+}
+showTouchControls(false);
+
+// --- Game State ---
+let gamePhase = 'title'; // title, playing, dead
+let player = null;
+let entities = [];
+let essenceOrbs = [];
+let particles = [];
+let corpses = [];
+let screenShake = { x: 0, y: 0, intensity: 0 };
+let camera = { x: 0, y: 0 };
+let skillMenuOpen = false;
+let totalGameTime = 0;
+
+// --- Skill System ---
+const SKILL_DEFS = [
+  { id: 'maxHp', name: 'HP上限', base: 3, perLevel: 1, maxLevel: 7, cost: i => 10 + i * 15 },
+  { id: 'atkSpeed', name: '攻撃速度', base: 1, perLevel: 0.12, maxLevel: 5, cost: i => 15 + i * 10 },
+  { id: 'moveSpeed', name: '移動速度', base: 1, perLevel: 0.08, maxLevel: 5, cost: i => 12 + i * 12 },
+  { id: 'essenceRange', name: '吸収範囲', base: 1, perLevel: 0.2, maxLevel: 5, cost: i => 8 + i * 8 },
+  { id: 'dashCd', name: 'ダッシュCD', base: 1, perLevel: -0.1, maxLevel: 5, cost: i => 20 + i * 15 },
+];
+
+function createPlayer(x, y, essence=0, skillLevels=null) {
+  return {
+    x, y, radius: 14, color: '#4ec8b0',
+    vx: 0, vy: 0,
+    angle: 0,
+    hp: BASE_HP, maxHp: BASE_HP,
+    essence: essence,
+    skillLevels: skillLevels || SKILL_DEFS.map(() => 0),
+    swinging: false, swingDir: 0, swingTime: 0, swingCooldown: 0,
+    swingSide: 0,
+    iframes: 0, hitFlash: 0,
+    dashCooldown: 0, dashing: false, dashTime: 0, dashAngle: 0,
+    alive: true, isPlayer: true,
+    kills: 0,
+  };
+}
+
+function getSkillValue(entity, skillId) {
+  const def = SKILL_DEFS.find(s => s.id === skillId);
+  if (!def) return 1;
+  const lvl = entity.skillLevels ? entity.skillLevels[SKILL_DEFS.indexOf(def)] : 0;
+  return def.base + def.perLevel * lvl;
+}
+
+// --- Enemy Factory ---
+let entityIdCounter = 0;
+function createEnemy(x, y, essence=0) {
+  const aggression = 0.3 + Math.min(essence / 100, 0.7);
+  const hue = Math.random() * 360;
+  const r = 10 + Math.min(essence * 0.3, 10);
+  return {
+    id: entityIdCounter++,
+    x, y, radius: r,
+    color: `hsl(${hue},60%,55%)`,
+    vx: 0, vy: 0, angle: Math.random() * Math.PI * 2,
+    hp: BASE_HP + Math.floor(essence / 30),
+    maxHp: BASE_HP + Math.floor(essence / 30),
+    essence: essence,
+    skillLevels: SKILL_DEFS.map(() => 0),
+    swinging: false, swingDir: 0, swingTime: 0, swingCooldown: 0,
+    swingSide: 0,
+    iframes: 0, hitFlash: 0,
+    ai: true,
+    aggression,
+    target: null,
+    aiTimer: Math.random() * 2,
+    wanderAngle: Math.random() * Math.PI * 2,
+    senseRange: ENEMY_SENSE_RANGE + essence * 0.5,
+    dashCooldown: 0, dashing: false, dashTime: 0, dashAngle: 0,
+    alive: true, isPlayer: false,
+    kills: 0,
+  };
+}
+
+// --- Essence Orb ---
+function spawnEssence(x, y, amount) {
+  const count = Math.min(Math.ceil(amount / 3), 30);
+  const per = amount / count;
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.random() * 40 + 10;
+    essenceOrbs.push({
+      x: x + Math.cos(a) * d * 0.3,
+      y: y + Math.sin(a) * d * 0.3,
+      targetX: x + Math.cos(a) * d,
+      targetY: y + Math.sin(a) * d,
+      amount: per,
+      life: 15 + Math.random() * 10,
+      age: 0,
+      vx: Math.cos(a) * 60,
+      vy: Math.sin(a) * 60,
+    });
+  }
+}
+
+// --- Particles ---
+function spawnParticles(x, y, color, count, speed=150, life=0.5) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = Math.random() * speed;
+    particles.push({
+      x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s,
+      color, life: life * (0.5 + Math.random()*0.5),
+      maxLife: life, size: 2 + Math.random()*3,
+    });
+  }
+}
+
+function spawnBlood(x, y, angle, count=8) {
+  for (let i = 0; i < count; i++) {
+    const a = angle + (Math.random()-0.5)*1.2;
+    const s = 80 + Math.random() * 120;
+    particles.push({
+      x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s,
+      color: `hsl(${350+Math.random()*20},80%,${40+Math.random()*20}%)`,
+      life: 0.3 + Math.random()*0.4, maxLife: 0.7, size: 2+Math.random()*4,
+    });
+  }
+}
+
+function addScreenShake(intensity) {
+  screenShake.intensity = Math.max(screenShake.intensity, intensity);
+}
+
+// --- Corpse ---
+function spawnCorpse(entity) {
+  const essenceOnBody = entity.essence * DEATH_ESSENCE_KEEP;
+  corpses.push({
+    x: entity.x, y: entity.y, radius: entity.radius * 0.7,
+    color: entity.color, essence: essenceOnBody,
+    isPlayerCorpse: entity.isPlayer,
+    life: 60,
+    fragments: Array.from({length: 6}, () => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 20 + 5,
+      size: 3 + Math.random() * 5,
+      rot: Math.random() * Math.PI * 2,
+    })),
+  });
+  spawnEssence(entity.x, entity.y, entity.essence * (1 - DEATH_ESSENCE_KEEP));
+}
+
+// --- Combat System ---
+function startSwing(entity, side) {
+  if (entity.swinging || entity.swingCooldown > 0) return;
+  entity.swinging = true;
+  entity.swingSide = side;
+  entity.swingTime = 0;
+  entity.swingDir = entity.angle;
+  entity.swingCooldown = SWORD_COOLDOWN;
+  if (entity.isPlayer) playSlash();
+}
+
+function getSwordArc(entity) {
+  if (!entity.swinging) return null;
+  const atkSpd = entity.isPlayer ? getSkillValue(entity, 'atkSpeed') : 1;
+  const progress = entity.swingTime / (SWORD_SWING_TIME / atkSpd);
+  const startAngle = entity.swingDir + entity.swingSide * SWORD_ARC / 2;
+  const endAngle = entity.swingDir - entity.swingSide * SWORD_ARC / 2;
+  const currentAngle = startAngle + (endAngle - startAngle) * Math.min(progress, 1);
+  return { angle: currentAngle, progress, side: entity.swingSide };
+}
+
+function checkSwordHit(attacker, defender) {
+  if (!attacker.swinging || defender.iframes > 0 || !defender.alive) return false;
+  const arc = getSwordArc(attacker);
+  if (!arc || arc.progress < 0.2 || arc.progress > 0.8) return false;
+  for (let t = 0.4; t <= 1; t += 0.2) {
+    const px = attacker.x + Math.cos(arc.angle) * SWORD_LENGTH * t;
+    const py = attacker.y + Math.sin(arc.angle) * SWORD_LENGTH * t;
+    const ddx = px - defender.x;
+    const ddy = py - defender.y;
+    if (Math.sqrt(ddx*ddx + ddy*ddy) < defender.radius + 10) return true;
+  }
+  return false;
+}
+
+function checkParry(a, b) {
+  if (!a.swinging || !b.swinging) return false;
+  const arcA = getSwordArc(a);
+  const arcB = getSwordArc(b);
+  if (!arcA || !arcB) return false;
+  if (arcA.progress < 0.15 || arcA.progress > 0.85) return false;
+  if (arcB.progress < 0.15 || arcB.progress > 0.85) return false;
+  const angleFromAtoB = Math.atan2(b.y - a.y, b.x - a.x);
+  const angleFromBtoA = Math.atan2(a.y - b.y, a.x - b.x);
+  const aSideRelative = Math.sin(arcA.angle - angleFromAtoB) > 0 ? 1 : -1;
+  const bSideRelative = Math.sin(arcB.angle - angleFromBtoA) > 0 ? 1 : -1;
+  return aSideRelative === bSideRelative;
+}
+
+function dealDamage(attacker, defender, angle) {
+  defender.hp -= DAMAGE;
+  defender.iframes = IFRAMES;
+  defender.hitFlash = 0.2;
+  spawnBlood(defender.x, defender.y, angle, 10);
+  addScreenShake(4);
+  playHit();
+  if (defender.hp <= 0) {
+    killEntity(defender, attacker);
+  }
+}
+
+function killEntity(entity, killer) {
+  entity.alive = false;
+  playDeath();
+  addScreenShake(8);
+  spawnParticles(entity.x, entity.y, entity.color, 20, 200, 0.8);
+  spawnCorpse(entity);
+  if (killer) {
+    killer.kills++;
+    const bonus = Math.min(entity.essence * 0.15, 20);
+    if (killer.isPlayer) killer.essence += bonus;
+    else killer.essence += bonus;
+  }
+  if (entity.isPlayer) {
+    gamePhase = 'dead';
+    document.getElementById('death-screen').style.display = 'flex';
+    showTouchControls(false);
+    document.querySelector('footer').style.display = 'block';
+    document.getElementById('death-info').innerHTML =
+      `倒された。エッセンスの${Math.round(DEATH_ESSENCE_KEEP*100)}%は遺体に残る<br>` +
+      `失ったエッセンス: ${Math.round(entity.essence * (1-DEATH_ESSENCE_KEEP))}`;
+  }
+}
+
+// --- World Generation ---
+function generateWorld() {
+  entities = [];
+  essenceOrbs = [];
+  particles = [];
+  for (let i = 0; i < 50; i++) {
+    let x, y;
+    if (i < 8) {
+      const a = Math.random() * Math.PI * 2;
+      const d = 200 + Math.random() * 300;
+      x = WORLD_SIZE/2 + Math.cos(a) * d;
+      y = WORLD_SIZE/2 + Math.sin(a) * d;
+    } else {
+      x = Math.random() * (WORLD_SIZE - 200) + 100;
+      y = Math.random() * (WORLD_SIZE - 200) + 100;
+    }
+    const ess = Math.random() * 15;
+    entities.push(createEnemy(x, y, ess));
+  }
+  for (let i = 0; i < 20; i++) {
+    const x = Math.random() * WORLD_SIZE;
+    const y = Math.random() * WORLD_SIZE;
+    spawnEssence(x, y, 5 + Math.random() * 15);
+  }
+}
+
+// --- AI ---
+function updateAI(entity, dt) {
+  if (!entity.ai || !entity.alive) return;
+  entity.aiTimer -= dt;
+
+  let nearest = null;
+  let nearestDist = entity.senseRange;
+  const allTargets = [player, ...entities].filter(e => e && e.alive && e !== entity);
+  for (const t of allTargets) {
+    const d = distFn(entity.x, entity.y, t.x, t.y);
+    if (d < nearestDist) { nearest = t; nearestDist = d; }
+  }
+
+  let nearestOrb = null;
+  let nearestOrbDist = entity.senseRange * 0.8;
+  for (const o of essenceOrbs) {
+    const d = distFn(entity.x, entity.y, o.x, o.y);
+    if (d < nearestOrbDist) { nearestOrb = o; nearestOrbDist = d; }
+  }
+
+  let nearestCorpse = null;
+  let nearestCorpseDist = entity.senseRange;
+  for (const c of corpses) {
+    if (c.essence < 3) continue;
+    const d = distFn(entity.x, entity.y, c.x, c.y);
+    if (d < nearestCorpseDist) { nearestCorpse = c; nearestCorpseDist = d; }
+  }
+
+  if (entity.aiTimer <= 0) {
+    entity.aiTimer = 0.3 + Math.random() * 0.5;
+    if (nearest && nearestDist < ENEMY_ATTACK_RANGE && Math.random() < entity.aggression) {
+      const angleToTarget = Math.atan2(nearest.y - entity.y, nearest.x - entity.x);
+      entity.angle = angleToTarget;
+      const side = Math.random() > 0.5 ? 1 : -1;
+      startSwing(entity, side);
+    }
+  }
+
+  let targetX = entity.x;
+  let targetY = entity.y;
+  let moveToTarget = false;
+
+  if (nearest && nearestDist < entity.senseRange && Math.random() < entity.aggression) {
+    targetX = nearest.x;
+    targetY = nearest.y;
+    moveToTarget = true;
+    entity.angle = Math.atan2(nearest.y - entity.y, nearest.x - entity.x);
+  } else if (nearestCorpse && nearestCorpseDist < entity.senseRange * 0.6) {
+    targetX = nearestCorpse.x;
+    targetY = nearestCorpse.y;
+    moveToTarget = true;
+  } else if (nearestOrb && nearestOrbDist < entity.senseRange * 0.4) {
+    targetX = nearestOrb.x;
+    targetY = nearestOrb.y;
+    moveToTarget = true;
+  } else {
+    entity.wanderAngle += (Math.random() - 0.5) * 1;
+    targetX = entity.x + Math.cos(entity.wanderAngle) * 100;
+    targetY = entity.y + Math.sin(entity.wanderAngle) * 100;
+    moveToTarget = true;
+  }
+
+  if (moveToTarget) {
+    const a = Math.atan2(targetY - entity.y, targetX - entity.x);
+    const speed = BASE_SPEED * 0.7;
+    entity.vx += Math.cos(a) * speed * dt * 3;
+    entity.vy += Math.sin(a) * speed * dt * 3;
+  }
+}
+
+// --- Spawner ---
+let spawnTimer = 0;
+function updateSpawner(dt) {
+  spawnTimer -= dt;
+  if (spawnTimer <= 0) {
+    spawnTimer = 3 + Math.random() * 5;
+    if (entities.filter(e => e.alive).length < 60) {
+      let x, y;
+      do {
+        x = Math.random() * WORLD_SIZE;
+        y = Math.random() * WORLD_SIZE;
+      } while (player && distFn(x, y, player.x, player.y) < 400);
+      const ess = Math.random() * (5 + totalGameTime * 0.1);
+      entities.push(createEnemy(x, y, ess));
+    }
+  }
+}
+
+// --- Auto-Aim ---
+function findAutoAimTarget() {
+  if (!player || !player.alive) { hasAutoAimTarget = false; return; }
+  let nearest = null;
+  let nearestDist = AUTO_AIM_RANGE;
+  for (const e of entities) {
+    if (!e.alive) continue;
+    const d = distFn(player.x, player.y, e.x, e.y);
+    if (d < nearestDist) { nearest = e; nearestDist = d; }
+  }
+  if (nearest) {
+    autoAimAngle = Math.atan2(nearest.y - player.y, nearest.x - player.x);
+    hasAutoAimTarget = true;
+  } else {
+    hasAutoAimTarget = false;
+    // Default: face movement direction
+    if (Math.abs(touchMoveX) > 0.1 || Math.abs(touchMoveY) > 0.1) {
+      autoAimAngle = Math.atan2(touchMoveY, touchMoveX);
+    }
+  }
+}
+
+// --- Update ---
+function update(dt) {
+  if (gamePhase !== 'playing') return;
+  if (skillMenuOpen) return;
+  totalGameTime += dt;
+
+  screenShake.intensity *= Math.max(0, 1 - dt * 10);
+  screenShake.x = (Math.random()-0.5) * screenShake.intensity * 2;
+  screenShake.y = (Math.random()-0.5) * screenShake.intensity * 2;
+
+  // Auto-aim
+  findAutoAimTarget();
+
+  // Player input (touch)
+  if (player && player.alive) {
+    // Movement from joystick
+    let mx = touchMoveX, my = touchMoveY;
+    const deadzone = 0.15;
+    if (Math.abs(mx) < deadzone) mx = 0;
+    if (Math.abs(my) < deadzone) my = 0;
+    const magn = Math.sqrt(mx*mx + my*my);
+    if (magn > 1) { mx /= magn; my /= magn; }
+
+    const speed = BASE_SPEED * getSkillValue(player, 'moveSpeed');
+    player.vx += mx * speed * dt * 5;
+    player.vy += my * speed * dt * 5;
+
+    // Auto-aim angle
+    player.angle = autoAimAngle;
+
+    // Attacks from touch
+    if (touchLeftAttack) { startSwing(player, 1); touchLeftAttack = false; }
+    if (touchRightAttack) { startSwing(player, -1); touchRightAttack = false; }
+
+    // Dash from touch
+    if (touchDash) {
+      if (player.dashCooldown <= 0 && !player.dashing) {
+        player.dashing = true;
+        player.dashTime = 0.12;
+        player.dashAngle = (mx || my) ? Math.atan2(my, mx) : player.angle;
+        player.dashCooldown = DASH_COOLDOWN * getSkillValue(player, 'dashCd');
+        player.iframes = 0.15;
+        playSFX(400, 0.1, 'sine', 0.1);
+        spawnParticles(player.x, player.y, '#4ec8b044', 5, 50, 0.3);
+      }
+      touchDash = false;
+    }
+    player.dashCooldown = Math.max(0, player.dashCooldown - dt);
+
+    // Dashing
+    if (player.dashing) {
+      player.dashTime -= dt;
+      const dashSpeed = DASH_DISTANCE / 0.12;
+      player.vx = Math.cos(player.dashAngle) * dashSpeed;
+      player.vy = Math.sin(player.dashAngle) * dashSpeed;
+      if (player.dashTime <= 0) player.dashing = false;
+    }
+
+    player.maxHp = Math.floor(getSkillValue(player, 'maxHp'));
+
+    // Update dash button visual
+    if (player.dashCooldown > 0) {
+      btnDash.classList.add('cooldown');
+    } else {
+      btnDash.classList.remove('cooldown');
+    }
+  }
+
+  // Update all combat entities
+  const allCombatants = [player, ...entities].filter(e => e && e.alive);
+
+  for (const e of allCombatants) {
+    e.vx *= 0.85;
+    e.vy *= 0.85;
+    e.x += e.vx * dt;
+    e.y += e.vy * dt;
+    e.x = Math.max(e.radius, Math.min(WORLD_SIZE - e.radius, e.x));
+    e.y = Math.max(e.radius, Math.min(WORLD_SIZE - e.radius, e.y));
+    e.iframes = Math.max(0, e.iframes - dt);
+    e.hitFlash = Math.max(0, e.hitFlash - dt);
+    e.swingCooldown = Math.max(0, e.swingCooldown - dt);
+    if (e.swinging) {
+      const atkSpd = e.isPlayer ? getSkillValue(e, 'atkSpeed') : 1;
+      e.swingTime += dt;
+      if (e.swingTime >= SWORD_SWING_TIME / atkSpd) {
+        e.swinging = false;
+      }
+    }
+    if (e.ai) updateAI(e, dt);
+    if (e.ai) e.dashCooldown = Math.max(0, e.dashCooldown - dt);
+  }
+
+  // Combat resolution
+  for (let i = 0; i < allCombatants.length; i++) {
+    for (let j = i+1; j < allCombatants.length; j++) {
+      const a = allCombatants[i], b = allCombatants[j];
+      if (!a.alive || !b.alive) continue;
+      const d = distFn(a.x, a.y, b.x, b.y);
+      if (d > SWORD_LENGTH + 30) continue;
+
+      if (a.swinging && b.swinging && checkParry(a, b)) {
+        playParry();
+        a.swinging = false; b.swinging = false;
+        a.swingCooldown = 0.3; b.swingCooldown = 0.3;
+        const ang = Math.atan2(b.y-a.y, b.x-a.x);
+        a.vx -= Math.cos(ang) * 200; a.vy -= Math.sin(ang) * 200;
+        b.vx += Math.cos(ang) * 200; b.vy += Math.sin(ang) * 200;
+        spawnParticles((a.x+b.x)/2, (a.y+b.y)/2, '#fff', 8, 120, 0.3);
+        addScreenShake(6);
+        continue;
+      }
+
+      const aHitsB = checkSwordHit(a, b);
+      const bHitsA = checkSwordHit(b, a);
+      if (aHitsB && bHitsA) {
+        const angAB = Math.atan2(b.y-a.y, b.x-a.x);
+        dealDamage(a, b, angAB);
+        dealDamage(b, a, angAB + Math.PI);
+      } else if (aHitsB) {
+        dealDamage(a, b, Math.atan2(b.y-a.y, b.x-a.x));
+      } else if (bHitsA) {
+        dealDamage(b, a, Math.atan2(a.y-b.y, a.x-b.x));
+      }
+
+      if (d < a.radius + b.radius && d > 0) {
+        const overlap = (a.radius + b.radius - d) / 2;
+        const nx = (b.x - a.x) / d;
+        const ny = (b.y - a.y) / d;
+        a.x -= nx * overlap; a.y -= ny * overlap;
+        b.x += nx * overlap; b.y += ny * overlap;
+      }
+    }
+  }
+
+  // Essence absorption
+  for (let i = essenceOrbs.length - 1; i >= 0; i--) {
+    const o = essenceOrbs[i];
+    o.age += dt;
+    o.life -= dt;
+    if (o.age < 0.5) {
+      o.x += o.vx * dt * (1 - o.age * 2);
+      o.y += o.vy * dt * (1 - o.age * 2);
+    }
+    if (o.life <= 0) { essenceOrbs.splice(i, 1); continue; }
+
+    for (const e of allCombatants) {
+      const eRange = e.isPlayer ? ESSENCE_ATTRACT_RANGE * getSkillValue(e, 'essenceRange') : ESSENCE_ATTRACT_RANGE * 0.5;
+      const d = distFn(e.x, e.y, o.x, o.y);
+      if (d < eRange) {
+        const pull = (1 - d / eRange) * 300 * dt;
+        const a = Math.atan2(e.y - o.y, e.x - o.x);
+        o.x += Math.cos(a) * pull;
+        o.y += Math.sin(a) * pull;
+      }
+      const absorbRange = e.isPlayer ? ESSENCE_ABSORB_RANGE * getSkillValue(e, 'essenceRange') : ESSENCE_ABSORB_RANGE * 0.4;
+      if (d < absorbRange) {
+        e.essence = (e.essence || 0) + o.amount;
+        if (e.isPlayer) playEssence();
+        essenceOrbs.splice(i, 1);
+        if (e.ai) {
+          e.maxHp = BASE_HP + Math.floor(e.essence / 30);
+          e.senseRange = ENEMY_SENSE_RANGE + e.essence * 0.5;
+          e.radius = Math.min(24, 10 + e.essence * 0.3);
+        }
+        break;
+      }
+    }
+  }
+
+  // Corpse interaction
+  if (player && player.alive) {
+    for (let i = corpses.length - 1; i >= 0; i--) {
+      const c = corpses[i];
+      c.life -= dt;
+      if (c.life <= 0) { corpses.splice(i, 1); continue; }
+      if (c.essence > 0 && distFn(player.x, player.y, c.x, c.y) < 40) {
+        player.essence += c.essence;
+        playLevelUp();
+        spawnParticles(c.x, c.y, '#4ec8b0', 12, 100, 0.5);
+        c.essence = 0;
+      }
+    }
+  }
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vx *= 0.95; p.vy *= 0.95;
+    p.life -= dt;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  entities = entities.filter(e => e.alive);
+  updateSpawner(dt);
+
+  if (player) {
+    camera.x = player.x - canvas.width / 2;
+    camera.y = player.y - canvas.height / 2;
+  }
+}
+
+// --- Render ---
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(-camera.x + screenShake.x, -camera.y + screenShake.y);
+
+  drawBackground();
+
+  for (const o of essenceOrbs) {
+    const alpha = Math.min(1, o.life / 3) * (o.age < 0.3 ? o.age / 0.3 : 1);
+    ctx.globalAlpha = alpha * 0.7;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, 4 + Math.sin(o.age * 8) * 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#4ec8b0';
+    ctx.fill();
+    ctx.globalAlpha = alpha * 0.2;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, 12, 0, Math.PI * 2);
+    ctx.fillStyle = '#4ec8b0';
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  for (const c of corpses) {
+    const alpha = Math.min(1, c.life / 5);
+    ctx.globalAlpha = alpha;
+    for (const f of c.fragments) {
+      ctx.save();
+      ctx.translate(c.x + Math.cos(f.angle) * f.dist, c.y + Math.sin(f.angle) * f.dist);
+      ctx.rotate(f.rot);
+      ctx.fillStyle = c.isPlayerCorpse ? '#2a6b5c' : adjustColor(c.color, -30);
+      ctx.fillRect(-f.size/2, -f.size/2, f.size, f.size);
+      ctx.restore();
+    }
+    if (c.essence > 0) {
+      ctx.globalAlpha = alpha * 0.3 * (0.7 + Math.sin(totalGameTime * 4) * 0.3);
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 20 + c.essence * 0.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#4ec8b0';
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  const allVisible = [...entities.filter(e => e.alive), player].filter(e => e && e.alive);
+  for (const e of allVisible) {
+    drawEntity(e);
+  }
+
+  // Draw aim indicator for player
+  if (player && player.alive && hasAutoAimTarget) {
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = '#4ec8b0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.moveTo(player.x + Math.cos(autoAimAngle) * 20, player.y + Math.sin(autoAimAngle) * 20);
+    ctx.lineTo(player.x + Math.cos(autoAimAngle) * AUTO_AIM_RANGE, player.y + Math.sin(autoAimAngle) * AUTO_AIM_RANGE);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  for (const p of particles) {
+    const alpha = p.life / p.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    const s = p.size * alpha;
+    ctx.fillRect(p.x - s/2, p.y - s/2, s, s);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.restore();
+
+  drawMinimap();
+}
+
+function drawBackground() {
+  const startX = Math.floor(camera.x / TILE_SIZE) * TILE_SIZE;
+  const startY = Math.floor(camera.y / TILE_SIZE) * TILE_SIZE;
+  const endX = startX + canvas.width + TILE_SIZE * 2;
+  const endY = startY + canvas.height + TILE_SIZE * 2;
+
+  ctx.fillStyle = '#0c0c14';
+  ctx.fillRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let x = startX; x < endX; x += TILE_SIZE) {
+    if (x < 0 || x > WORLD_SIZE) continue;
+    ctx.beginPath();
+    ctx.moveTo(x, Math.max(0, startY));
+    ctx.lineTo(x, Math.min(WORLD_SIZE, endY));
+    ctx.stroke();
+  }
+  for (let y = startY; y < endY; y += TILE_SIZE) {
+    if (y < 0 || y > WORLD_SIZE) continue;
+    ctx.beginPath();
+    ctx.moveTo(Math.max(0, startX), y);
+    ctx.lineTo(Math.min(WORLD_SIZE, endX), y);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(255,68,102,0.3)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+}
+
+function drawEntity(e) {
+  ctx.save();
+  ctx.translate(e.x, e.y);
+
+  if (e.hitFlash > 0) {
+    ctx.globalAlpha = 0.3 + 0.7 * (1 - e.hitFlash / 0.2);
+  }
+  if (e.iframes > 0 && Math.sin(e.iframes * 40) > 0) {
+    ctx.globalAlpha *= 0.4;
+  }
+
+  ctx.beginPath();
+  ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+  ctx.fillStyle = e.hitFlash > 0 ? '#fff' : e.color;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.save();
+  ctx.rotate(e.angle);
+  ctx.beginPath();
+  ctx.moveTo(e.radius + 4, 0);
+  ctx.lineTo(e.radius - 3, -4);
+  ctx.lineTo(e.radius - 3, 4);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fill();
+  ctx.restore();
+
+  if (e.swinging) {
+    const arc = getSwordArc(e);
+    if (arc) {
+      const startAngle = e.swingDir + e.swingSide * SWORD_ARC / 2;
+      const currentAngle = arc.angle;
+      ctx.save();
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, SWORD_LENGTH, startAngle - e.angle, currentAngle - e.angle);
+      ctx.closePath();
+      ctx.fillStyle = e.isPlayer ? '#4ec8b0' : '#ff6644';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(arc.angle);
+      const swordAlpha = 1 - Math.abs(arc.progress - 0.5) * 1.5;
+      ctx.globalAlpha = Math.max(0.4, swordAlpha);
+      ctx.beginPath();
+      ctx.moveTo(e.radius - 2, 0);
+      ctx.lineTo(SWORD_LENGTH, 0);
+      ctx.strokeStyle = '#e8e8ec';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(SWORD_LENGTH, 0, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  if (e.hp < e.maxHp) {
+    ctx.globalAlpha = 1;
+    const barW = e.radius * 2.5;
+    const barH = 3;
+    const barY = -e.radius - 10;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(-barW/2, barY, barW, barH);
+    ctx.fillStyle = e.isPlayer ? '#ff4466' : '#ff6644';
+    ctx.fillRect(-barW/2, barY, barW * (e.hp / e.maxHp), barH);
+  }
+
+  if (e.essence > 5 && !e.isPlayer) {
+    ctx.globalAlpha = 0.6;
+    ctx.font = '600 9px Inter,sans-serif';
+    ctx.fillStyle = '#4ec8b0';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.floor(e.essence), 0, e.radius + 14);
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawMinimap() {
+  const mw = miniCanvas.width, mh = miniCanvas.height;
+  miniCtx.clearRect(0, 0, mw, mh);
+  miniCtx.fillStyle = 'rgba(10,10,15,0.85)';
+  miniCtx.fillRect(0, 0, mw, mh);
+
+  if (!player) return;
+  const scale = mw / (MINIMAP_RANGE * 2);
+  const ox = player.x - MINIMAP_RANGE;
+  const oy = player.y - MINIMAP_RANGE;
+
+  miniCtx.strokeStyle = 'rgba(255,68,102,0.3)';
+  miniCtx.lineWidth = 1;
+  miniCtx.strokeRect(-ox * scale, -oy * scale, WORLD_SIZE * scale, WORLD_SIZE * scale);
+
+  for (const e of entities) {
+    if (!e.alive) continue;
+    const mx = (e.x - ox) * scale;
+    const my = (e.y - oy) * scale;
+    if (mx < -5 || mx > mw+5 || my < -5 || my > mh+5) continue;
+    miniCtx.fillStyle = e.color;
+    miniCtx.globalAlpha = 0.7;
+    miniCtx.fillRect(mx-1.5, my-1.5, 3, 3);
+  }
+
+  for (const c of corpses) {
+    if (c.essence <= 0) continue;
+    const mx = (c.x - ox) * scale;
+    const my = (c.y - oy) * scale;
+    if (mx < -5 || mx > mw+5 || my < -5 || my > mh+5) continue;
+    miniCtx.fillStyle = c.isPlayerCorpse ? '#4ec8b0' : '#666';
+    miniCtx.globalAlpha = 0.5;
+    miniCtx.fillRect(mx-2, my-2, 4, 4);
+  }
+
+  miniCtx.globalAlpha = 1;
+  miniCtx.fillStyle = '#4ec8b0';
+  miniCtx.beginPath();
+  miniCtx.arc(mw/2, mh/2, 3, 0, Math.PI*2);
+  miniCtx.fill();
+}
+
+// --- HUD ---
+function updateHUD() {
+  if (!player) return;
+  const hpBar = document.getElementById('hp-bar');
+  const hpText = document.getElementById('hp-text');
+  const essBar = document.getElementById('essence-bar');
+  const essText = document.getElementById('essence-text');
+  const stats = document.getElementById('hud-stats');
+
+  hpBar.style.width = `${(player.hp / player.maxHp) * 100}%`;
+  hpText.textContent = `${player.hp}/${player.maxHp}`;
+  const essMax = Math.max(100, player.essence + 50);
+  essBar.style.width = `${Math.min(100, (player.essence / essMax) * 100)}%`;
+  essText.textContent = Math.floor(player.essence);
+
+  stats.innerHTML = `Kills: ${player.kills}<br>Time: ${formatTime(totalGameTime)}`;
+}
+
+function formatTime(s) {
+  const m = Math.floor(s/60);
+  const sec = Math.floor(s%60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+// --- Skill Menu ---
+function toggleSkillMenu() {
+  if (gamePhase !== 'playing') return;
+  skillMenuOpen = !skillMenuOpen;
+  document.getElementById('skill-menu').style.display = skillMenuOpen ? 'block' : 'none';
+  if (skillMenuOpen) renderSkillMenu();
+}
+
+function renderSkillMenu() {
+  if (!player) return;
+  const list = document.getElementById('skill-list');
+  list.innerHTML = SKILL_DEFS.map((def, i) => {
+    const lvl = player.skillLevels[i];
+    const cost = lvl < def.maxLevel ? def.cost(lvl) : '---';
+    const canAfford = player.essence >= cost && lvl < def.maxLevel;
+    const val = (def.base + def.perLevel * lvl).toFixed(2);
+    return `<div class="skill-row">
+      <span class="skill-name">${def.name} Lv.${lvl}</span>
+      <span class="skill-value">${val}</span>
+      <span>
+        <button class="skill-btn" ${canAfford ? '' : 'disabled'} onclick="upgradeSkill(${i})">+</button>
+        <span class="skill-cost">${cost} Ess</span>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function upgradeSkill(index) {
+  if (!player) return;
+  const def = SKILL_DEFS[index];
+  const lvl = player.skillLevels[index];
+  if (lvl >= def.maxLevel) return;
+  const cost = def.cost(lvl);
+  if (player.essence < cost) return;
+  player.essence -= cost;
+  player.skillLevels[index]++;
+  if (def.id === 'maxHp') {
+    player.maxHp = Math.floor(getSkillValue(player, 'maxHp'));
+    player.hp = Math.min(player.hp + 1, player.maxHp);
+  }
+  playLevelUp();
+  renderSkillMenu();
+}
+
+// --- Game Flow ---
+function startGame() {
+  initAudio();
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  showTouchControls(true);
+  document.querySelector('footer').style.display = 'none';
+  gamePhase = 'playing';
+  totalGameTime = 0;
+  player = createPlayer(WORLD_SIZE/2, WORLD_SIZE/2);
+  generateWorld();
+}
+
+function respawn() {
+  initAudio();
+  document.getElementById('death-screen').style.display = 'none';
+  showTouchControls(true);
+  document.querySelector('footer').style.display = 'none';
+  gamePhase = 'playing';
+  const keptLevels = player.skillLevels.map(l => Math.floor(l * 0.3));
+  const x = Math.random() * (WORLD_SIZE - 400) + 200;
+  const y = Math.random() * (WORLD_SIZE - 400) + 200;
+  player = createPlayer(x, y, 0, keptLevels);
+  player.maxHp = Math.floor(getSkillValue(player, 'maxHp'));
+  player.hp = player.maxHp;
+}
+
+// --- Utility ---
+function distFn(x1,y1,x2,y2) {
+  const dx=x2-x1, dy=y2-y1;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+
+function adjustColor(color, amount) {
+  return color;
+}
+
+// --- Game Loop ---
+let lastTime = 0;
+let accumulator = 0;
+const TICK = 1/60;
+let frames = 0, fpsTime = 0, fps = 0;
+
+function gameLoop(timestamp) {
+  requestAnimationFrame(gameLoop);
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+  lastTime = timestamp;
+
+  frames++;
+  fpsTime += dt;
+  if (fpsTime >= 1) { fps = frames; frames = 0; fpsTime = 0; }
+
+  accumulator += dt;
+  while (accumulator >= TICK) {
+    update(TICK);
+    accumulator -= TICK;
+  }
+
+  render();
+  updateHUD();
+
+  document.getElementById('debug').textContent =
+    `FPS:${fps} Entities:${entities.filter(e=>e.alive).length} Orbs:${essenceOrbs.length} Particles:${particles.length}`;
+}
+
+// --- Time step hook for testing ---
+window.advanceTime = (ms) => {
+  const steps = Math.max(1, Math.round(ms / (1000/60)));
+  for (let i = 0; i < steps; i++) update(TICK);
+  render();
+  updateHUD();
+};
+
+window.render_game_to_text = () => {
+  return JSON.stringify({
+    phase: gamePhase,
+    player: player ? { x: Math.round(player.x), y: Math.round(player.y), hp: player.hp, maxHp: player.maxHp, essence: Math.round(player.essence), alive: player.alive, kills: player.kills } : null,
+    enemies: entities.filter(e=>e.alive).length,
+    essenceOrbs: essenceOrbs.length,
+    corpses: corpses.length,
+    time: Math.round(totalGameTime),
+  });
+};
+
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
