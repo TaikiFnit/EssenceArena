@@ -151,10 +151,9 @@ footer a:hover { color:#888; }
   <button id="start-btn" onclick="onStart()">始める</button>
   <div class="controls-info">
     <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動 &nbsp;
-    <kbd>左クリック</kbd> 左斬り(赤) &nbsp;
-    <kbd>右クリック</kbd> 右斬り(青)<br>
+    <kbd>左/右クリック</kbd> パリィ / 追撃<br>
     <kbd>Shift</kbd> ダッシュ &nbsp;
-    溜めて斬る居合切りスタイル
+    敵の攻撃をタイミングよくパリィ → 追撃の居合リズム
   </div>
 </div>
 
@@ -270,11 +269,16 @@ window.onSelectSkill = function(index) {
 };
 
 // Death screen
-function onPlayerDeath(entity) {
+function onPlayerDeath(entity, lostTitle) {
   document.getElementById('death-screen').style.display = 'flex';
-  document.getElementById('death-info').innerHTML =
-    `倒された<br>蓄積エッセンスは死亡地点に散布された<br>` +
-    `散布量: ${Math.floor(entity.totalEssence || 0)}`;
+  let info = '';
+  if (lostTitle) {
+    info += `<span style="color:#4ec8b0;font-size:18px;font-weight:700">「${lostTitle}」</span><br>`;
+    info += `<span style="color:#8888a0;font-size:13px">その名は散った</span><br><br>`;
+  }
+  info += `倒された<br>蓄積エッセンスは死亡地点に散布された<br>`;
+  info += `散布量: ${Math.floor(entity.totalEssence || 0)}`;
+  document.getElementById('death-info').innerHTML = info;
 }
 
 // Ability HUD

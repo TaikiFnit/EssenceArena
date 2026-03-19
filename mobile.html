@@ -193,7 +193,7 @@ footer a { color:#444; text-decoration:none; }
   <button id="start-btn">始める</button>
   <div style="margin-top:1.5em;font-size:11px;color:#555;text-align:center;line-height:2">
     左側: 移動ジョイスティック<br>
-    右側: 赤=左斬り / 青=右斬り / ⇢=ダッシュ<br>
+    右側: 赤/青=パリィ・追撃 / ⇢=ダッシュ<br>
     長押しで溜め → 離して斬る
   </div>
 </div>
@@ -423,11 +423,16 @@ window.onSelectSkill = function(index) {
 };
 
 // ========== DEATH SCREEN ==========
-function onPlayerDeath(entity) {
+function onPlayerDeath(entity, lostTitle) {
   document.getElementById('death-screen').style.display = 'flex';
-  document.getElementById('death-info').innerHTML =
-    `倒された<br>蓄積エッセンスは死亡地点に散布された<br>` +
-    `散布量: ${Math.floor(entity.totalEssence || 0)}`;
+  let info = '';
+  if (lostTitle) {
+    info += `<span style="color:#4ec8b0;font-size:16px;font-weight:700">「${lostTitle}」</span><br>`;
+    info += `<span style="color:#8888a0;font-size:12px">その名は散った</span><br><br>`;
+  }
+  info += `倒された<br>蓄積エッセンスは死亡地点に散布された<br>`;
+  info += `散布量: ${Math.floor(entity.totalEssence || 0)}`;
+  document.getElementById('death-info').innerHTML = info;
 }
 
 // ========== ABILITY HUD (simpler on mobile) ==========
